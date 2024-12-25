@@ -35,13 +35,14 @@ namespace waybar::modules::SNI {
 static const Glib::ustring SNI_INTERFACE_NAME = sn_item_interface_info()->name;
 static const unsigned UPDATE_DEBOUNCE_TIME = 10;
 
-Item::Item(const std::string& bn, const std::string& op, const Json::Value& config, const Bar& bar)
+Item::Item(const std::string& bn, const std::string& op, const Json::Value& config, const Bar& bar, const std::function<void(void)>& tray_update)
     : bus_name(bn),
       object_path(op),
       icon_size(16),
       effective_icon_size(0),
       icon_theme(Gtk::IconTheme::create()),
-      bar_(bar) {
+      bar_(bar),
+     tray_update_(tray_update) {
   if (config["icon-size"].isUInt()) {
     icon_size = config["icon-size"].asUInt();
   }
@@ -196,6 +197,7 @@ void Item::setStatus(const Glib::ustring& value) {
     lower = "needs-attention";
   }
   style->add_class(lower);
+  tray_update_();
 }
 
 void Item::getUpdatedProperties() {

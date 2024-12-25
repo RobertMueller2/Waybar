@@ -16,7 +16,8 @@ class Host {
  public:
   Host(const std::size_t id, const Json::Value&, const Bar&,
        const std::function<void(std::unique_ptr<Item>&)>&,
-       const std::function<void(std::unique_ptr<Item>&)>&);
+       const std::function<void(std::unique_ptr<Item>&)>&,
+       const std::function<void(void)>&);
   ~Host();
 
  private:
@@ -43,6 +44,7 @@ class Host {
   const Bar& bar_;
   const std::function<void(std::unique_ptr<Item>&)> on_add_;
   const std::function<void(std::unique_ptr<Item>&)> on_remove_;
+  const std::function<void(void)> tray_update_;
 };
 
 }  // namespace waybar::modules::SNI

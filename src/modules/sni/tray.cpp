@@ -11,7 +11,8 @@ Tray::Tray(const std::string& id, const Bar& bar, const Json::Value& config)
       box_(bar.orientation, 0),
       watcher_(SNI::Watcher::getInstance()),
       host_(nb_hosts_, config, bar, std::bind(&Tray::onAdd, this, std::placeholders::_1),
-            std::bind(&Tray::onRemove, this, std::placeholders::_1)) {
+            std::bind(&Tray::onRemove, this, std::placeholders::_1),
+            std::bind(&Tray::update, this)) {
   box_.set_name("tray");
   event_box_.add(box_);
   if (!id.empty()) {

@@ -25,7 +25,7 @@ struct ToolTip {
 
 class Item : public sigc::trackable {
  public:
-  Item(const std::string&, const std::string&, const Json::Value&, const Bar&);
+  Item(const std::string&, const std::string&, const Json::Value&, const Bar&, const std::function<void(void)>&);
   ~Item() = default;
 
   std::string bus_name;
@@ -91,6 +91,8 @@ class Item : public sigc::trackable {
   Glib::RefPtr<Gio::DBus::Proxy> proxy_;
   Glib::RefPtr<Gio::Cancellable> cancellable_;
   std::set<std::string_view> update_pending_;
+
+  std::function<void(void)> tray_update_;
 };
 
 }  // namespace waybar::modules::SNI

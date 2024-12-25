@@ -8,7 +8,8 @@ namespace waybar::modules::SNI {
 
 Host::Host(const std::size_t id, const Json::Value& config, const Bar& bar,
            const std::function<void(std::unique_ptr<Item>&)>& on_add,
-           const std::function<void(std::unique_ptr<Item>&)>& on_remove)
+           const std::function<void(std::unique_ptr<Item>&)>& on_remove,
+           const std::function<void(void)>& tray_update)
     : bus_name_("org.kde.StatusNotifierHost-" + std::to_string(getpid()) + "-" +
                 std::to_string(id)),
       object_path_("/StatusNotifierHost/" + std::to_string(id)),
@@ -17,7 +18,8 @@ Host::Host(const std::size_t id, const Json::Value& config, const Bar& bar,
       config_(config),
       bar_(bar),
       on_add_(on_add),
-      on_remove_(on_remove) {}
+      on_remove_(on_remove),
+      tray_update_(tray_update) {}
 
 Host::~Host() {
   if (bus_name_id_ > 0) {
@@ -139,7 +141,7 @@ void Host::addRegisteredItem(std::string service) {
     return bus_name == item->bus_name && object_path == item->object_path;
   });
   if (it == items_.end()) {
-    items_.emplace_back(new Item(bus_name, object_path, config_, bar_));
+    items_.emplace_back(new Item(bus_name, object_path, config_, bar_, tray_update_));
     on_add_(items_.back());
   }
 }

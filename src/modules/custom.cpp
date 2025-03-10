@@ -17,10 +17,13 @@ waybar::modules::Custom::Custom(const std::string& name, const std::string& id,
   dp.emit();
   if (!config_["signal"].empty() && config_["interval"].empty() &&
       config_["restart-interval"].empty()) {
+    spdlog::trace("custom-{}: waitingWorker", name_);
     waitingWorker();
   } else if (interval_.count() > 0) {
+    spdlog::trace("custom-{}: delayWorker", name_);
     delayWorker();
   } else if (config_["exec"].isString()) {
+    spdlog::trace("custom-{}: continuousWorker", name_);
     continuousWorker();
   }
 }
@@ -35,6 +38,7 @@ waybar::modules::Custom::~Custom() {
 
 void waybar::modules::Custom::delayWorker() {
   thread_ = [this] {
+    spdlog::trace("custom-{}: running delayWorker", name_);
     bool can_update = true;
     if (config_["exec-if"].isString()) {
       output_ = util::command::execNoRead(config_["exec-if"].asString());
@@ -61,6 +65,7 @@ void waybar::modules::Custom::continuousWorker() {
     throw std::runtime_error("Unable to open " + cmd);
   }
   thread_ = [this, cmd] {
+    spdlog::trace("custom-{}: running continuousWorker", name_);
     char* buff = nullptr;
     waybar::util::ScopeGuard buff_deleter([buff]() {
       if (buff) {
@@ -105,6 +110,7 @@ void waybar::modules::Custom::continuousWorker() {
 
 void waybar::modules::Custom::waitingWorker() {
   thread_ = [this] {
+    spdlog::trace("custom-{}: running waitingWorker", name_);
     bool can_update = true;
     if (config_["exec-if"].isString()) {
       output_ = util::command::execNoRead(config_["exec-if"].asString());
@@ -125,6 +131,7 @@ void waybar::modules::Custom::waitingWorker() {
 
 void waybar::modules::Custom::refresh(int sig) {
   if (sig == SIGRTMIN + config_["signal"].asInt()) {
+    spdlog::trace("custom-{}: wake up thread", name_);
     thread_.wake_up();
   }
 }
